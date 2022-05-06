@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import re
 
+#Cleansing
 url = r'Tweets\bbchealth.txt'
 
 df = pd.read_table(url, names = ['Tweet'])
@@ -20,6 +21,5 @@ df[2] = df[2].str.replace(match, '', regex = True)
 
 df[2] = df[2].str.lower()
 
-print(df.head())
-print(df.describe())
+
 
