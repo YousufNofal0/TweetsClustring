@@ -1,8 +1,10 @@
+from numpy import choose
 import pandas as pd
 import re
 import random as rd
 import math
 import string
+import matplotlib.pyplot as plt 
 
 #Cleansing
 def preprocessTweets(url):
@@ -14,7 +16,9 @@ def preprocessTweets(url):
     df = df[[2]]
     match = re.compile(r'http:\S+')
     df[2] = df[2].str.replace(match, '', regex = True)
-
+    match = re.compile(r'www\S+')
+    df[2] = df[2].str.replace(match, '', regex = True)
+    
     #Removing mention
     match = re.compile(r'@\S+')
     df[2] = df[2].str.replace(match, '', regex = True)
@@ -25,8 +29,10 @@ def preprocessTweets(url):
 
     #Converting strings to lower case
     df[2] = df[2].str.lower()
+    
 
     tweetList = df[2].values.tolist()
+    listOfTweets = []
 
     for i in range(len(tweetList)):
         #Remove colons from the end of the sentences (if any) after removing url
@@ -41,8 +47,12 @@ def preprocessTweets(url):
 
         #Trim extra spaces
         tweetList[i] = " ".join(tweetList[i].split())
+        
+        #Convert the tweets into list of strings instead of strings
+        listOfTweets.append(tweetList[i].split(' '))
 
-    return tweetList
+
+    return listOfTweets
 
 #K-means implemented from Scratch
 def k_means(tweets, k=3, maxIterations=50):
@@ -179,7 +189,6 @@ def getDistance(tweet1, tweet2):
 
     #Get the intersection
     intersection = set(tweet1).intersection(tweet2)
-    
     #Get the union
     union = set().union(tweet1, tweet2)
 
@@ -198,29 +207,63 @@ def getSSE(clusters):
     return sse
 
 
-#Add the main code here, required: make the user decide to keep the default k value, no. of experiments and url 
-#for the dataset or change any of them.
-#Plot the SSE & size of clusters after every experiment.
 
+choice = input('Enter your choice: 1) for running on default settings \t 2) to adjust "k", "no. of experiments" or "URL" \n')
 url = 'Tweets/bbchealth.txt'
+k = 3
+experiments = 5
+
+while choice != '1':
+    while choice == '2':
+        print("------- Default url: " + str(url) + "\t Default no. of experiments: " + str(experiments) + "\t Default value for K: " + str(k) + " ------")
+        print("Choose an action: a) To change the URL \t b) To change the default no. of experiments \t c) To change the default value of K")
+        print("Any other character to continue with current values")
+        decision = input()
+        decision = decision.lower()
+        if decision == 'a':
+            url = input("Enter a valid url: ")
+        elif decision == 'b':
+            experiments = int(input("Enter the desired no. of experiments: "))
+        elif decision == 'c':
+            k = int(input("Enter the desired value for k: "))
+        else:
+            choice = 1
+            break
+        print("Enter 1 to exit, or 2 to modify anything again.")
+        choice = input()
+
+    if choice != '1' and choice != '2':
+        print("INVALID CHOICE, TRY AGAIN!")
+        choice = input('Enter your choice: 1) for running on default settings \t 2) to adjust or view "k", "no. of experiments" or "URL" \n')
+
+
 
 tweets = preprocessTweets(url)
 
-#Default number of experiments to be performed
-experiments = 5
+#The lists that contain SSEs and Ks for plotting.
+SSE = []
+K = range(k, k + experiments)
 
-#Default value of K for K-means
-k = 3
-
-#For every experiment 'e', run K-means
+#For every experiment 'e', run K-means.
 for e in range(experiments):
-    print("------ Running K-means for experiment no. " + str((e + 1)) + " for k = " + str(k) + " ------")
+    print("------- Running K-means for experiment no. " + str((e + 1)) + " for k = " + str(k) + " ------")
 
     clusters, sse = k_means(tweets, k)
-
+    SSE.append(sse)
     for c in range(len(clusters)):
         print(str(c+1) + ": ", str(len(clusters[c])) + " tweets")
     
     print("--> SSE: " + str(sse))
     print("---------------------------------------------------")
     print('\n')
+    #Incrementing k so for applying the elbow method.
+    k+=1
+
+#To plot the graph for the elbow method.
+plt.figure()
+plt.plot(K, SSE, 'bx-')
+plt.xticks(range(k-experiments, k+1, 1))
+plt.xlabel('k')
+plt.ylabel('SSE')
+plt.title('The Elbow Method showing the optimal k')
+plt.show()
