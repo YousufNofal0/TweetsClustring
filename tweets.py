@@ -1,6 +1,4 @@
-from numpy import choose
 import pandas as pd
-import re
 import random as rd
 import math
 import string
@@ -14,18 +12,14 @@ def preprocessTweets(url):
 
     #Removing URLs
     df = df[[2]]
-    match = re.compile(r'http:\S+')
-    df[2] = df[2].str.replace(match, '', regex = True)
-    match = re.compile(r'www\S+')
-    df[2] = df[2].str.replace(match, '', regex = True)
+    df[2] = df[2].str.replace(r'http\S+', '', regex = True)
+    df[2] = df[2].str.replace(r'www\S+', '', regex = True)
     
     #Removing mention
-    match = re.compile(r'@\S+')
-    df[2] = df[2].str.replace(match, '', regex = True)
+    df[2] = df[2].str.replace(r'@\S+', '', regex = True)
 
     #Removing hashtag symbols
-    match = re.compile(r'#')
-    df[2] = df[2].str.replace(match, '', regex = True)
+    df[2] = df[2].str.replace(r'#', '', regex = True)
 
     #Converting strings to lower case
     df[2] = df[2].str.lower()
@@ -239,7 +233,6 @@ while choice != '1':
 
 
 tweets = preprocessTweets(url)
-
 #The lists that contain SSEs and Ks for plotting.
 SSE = []
 K = range(k, k + experiments)
