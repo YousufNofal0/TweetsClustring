@@ -241,19 +241,35 @@ K = range(k, k + experiments)
 for e in range(experiments):
     print("------- Running K-means for experiment no. " + str((e + 1)) + " for k = " + str(k) + " ------")
 
+
     clusters, sse = k_means(tweets, k)
     SSE.append(sse)
+
+    x = ['SSE']
+    y = [sse]
+
     for c in range(len(clusters)):
         print(str(c+1) + ": ", str(len(clusters[c])) + " tweets")
+        x.append('Cluster #'+str(c+1))
+        y.append(len(clusters[c]))
+
     
     print("--> SSE: " + str(sse))
+    print('Close the scatter plot to continue')
+
+    plt.figure('The Required Plot')
+    plt.title('SSE & Cluster Sizes for Experiment: ' + str(e+1))
+    plt.scatter(x, y)
+    plt.show()
     print("---------------------------------------------------")
     print('\n')
+
     #Incrementing k so for applying the elbow method.
     k+=1
 
+
 #To plot the graph for the elbow method.
-plt.figure()
+plt.figure("K-SSE graph")
 plt.plot(K, SSE, 'bx-')
 plt.xticks(range(k-experiments, k+1, 1))
 plt.xlabel('k')
